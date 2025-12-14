@@ -100,34 +100,36 @@ export default function ScratchCard({ name }: ScratchCardProps) {
   };
 
   return (
-    <div className="h-[280px] md:h-[320px] rounded-xl overflow-hidden border-2 border-blue-500/30 bg-gray-50 shadow-inner relative">
+    <div className="h-[360px] md:h-[400px] rounded-xl overflow-hidden border-2 border-blue-500/30 bg-gray-50 shadow-inner relative">
       {/* Hidden content underneath */}
-      <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 p-8 relative overflow-hidden">
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 p-4 md:p-6">
         <div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full"
           style={{ animation: "shimmer 3s infinite" }}
         />
 
         {/* Prize content */}
-        <div className="text-center space-y-6 relative z-10">
-          <div className="text-7xl md:text-8xl animate-bounce">🎅</div>
-          <div className="space-y-2">
-            <h2 className="text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
+        <div className="text-center space-y-3 md:space-y-4 relative max-w-full">
+          <div className="text-5xl md:text-7xl animate-bounce">🎅</div>
+          <div className="space-y-1">
+            <h2 className="text-xl md:text-2xl font-bold text-white drop-shadow-lg">
               SEU AMIGO SECRETO É
             </h2>
           </div>
-          <div className="mt-6 px-8 py-6 bg-white rounded-xl border-2 border-dashed border-white/30 shadow-2xl">
-            <p className="text-sm text-gray-600 mb-2 font-mono">
+          <div className="px-4 md:px-8 py-4 md:py-6 bg-white rounded-xl border-2 border-dashed border-white/30 shadow-2xl max-w-full">
+            <p className="text-xs md:text-sm text-gray-600 mb-1 md:mb-2 font-mono">
               🎁 Nome Revelado
             </p>
-            <p className="text-3xl md:text-4xl font-bold text-blue-600">
+            <p className="text-2xl md:text-3xl font-bold text-blue-600 break-words">
               {name}
             </p>
           </div>
-          <div className="flex items-center justify-center gap-2 text-white bg-white/20 rounded-lg px-4 py-2">
-            <span className="text-xl">🎄</span>
-            <p className="text-sm font-semibold">Não conte para ninguém!</p>
-            <span className="text-xl">🎄</span>
+          <div className="flex items-center justify-center gap-2 text-white bg-white/20 rounded-lg px-3 py-2">
+            <span className="text-lg">🎄</span>
+            <p className="text-xs md:text-sm font-semibold">
+              Não conte para ninguém!
+            </p>
+            <span className="text-lg">🎄</span>
           </div>
         </div>
       </div>
@@ -142,13 +144,13 @@ export default function ScratchCard({ name }: ScratchCardProps) {
         onTouchStart={() => setIsScratching(true)}
         onTouchEnd={() => setIsScratching(false)}
         onTouchMove={scratch}
-        className="absolute inset-0 w-full h-full cursor-pointer touch-none"
+        className="absolute inset-0 w-full h-full cursor-pointer touch-none z-20"
         style={{ touchAction: "none" }}
       />
 
       {/* Reveal button overlay */}
       {scratchPercentage < 60 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30">
           <button
             type="button"
             onClick={revealAll}
