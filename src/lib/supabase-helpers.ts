@@ -88,14 +88,58 @@ export async function getParticipantToken(
   return data as string;
 }
 
+// Helper para detectar informações do dispositivo
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  let browser = "Unknown";
+  let os = "Unknown";
+  let device = "Desktop";
+
+  // Detectar Browser
+  if (ua.includes("Firefox")) browser = "Firefox";
+  else if (ua.includes("Chrome")) browser = "Chrome";
+  else if (ua.includes("Safari")) browser = "Safari";
+  else if (ua.includes("Edge")) browser = "Edge";
+
+  // Detectar OS
+  if (ua.includes("Windows")) os = "Windows";
+  else if (ua.includes("Mac")) os = "macOS";
+  else if (ua.includes("Linux")) os = "Linux";
+  else if (ua.includes("Android")) os = "Android";
+  else if (ua.includes("iOS")) os = "iOS";
+
+  // Detectar tipo de dispositivo
+  if (/Mobile|Android|iPhone/i.test(ua)) device = "Mobile";
+  else if (/Tablet|iPad/i.test(ua)) device = "Tablet";
+
+  return { browser, os, device };
+}
+
 export async function getMyMatch(publicToken: string): Promise<string> {
+  const deviceInfo = getDeviceInfo();
+
   // @ts-expect-error - Supabase types are not properly inferred
   const { data, error } = await supabase.rpc("get_my_match", {
     p_public_token: publicToken,
+    p_ip_address: null, // IP será capturado no backend do Supabase
+    p_user_agent: navigator.userAgent,
+    p_device_info: deviceInfo,
   });
 
   if (error) throw error;
   if (!data) throw new Error("Match not found");
 
   return (data as MatchResult).match_name;
+}
+
+export async function getRevelationLogs(
+  participantId: string,
+): Promise<import("../types").RevelationLog[]> {
+  // @ts-expect-error - Supabase types are not properly inferred
+  const { data, error } = await supabase.rpc("get_revelation_logs", {
+    p_participant_id: participantId,
+  });
+
+  if (error) throw error;
+  return (data as import("../types").RevelationLog[]) || [];
 }

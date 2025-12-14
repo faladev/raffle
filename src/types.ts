@@ -14,6 +14,19 @@ export interface Participant {
   target_participant_id: string | null;
   created_at: string;
   revealed_at: string | null;
+  view_count: number;
+}
+
+export interface RevelationLog {
+  id: string;
+  viewed_at: string;
+  ip_address: string | null;
+  user_agent: string | null;
+  device_info: {
+    browser?: string;
+    os?: string;
+    device?: string;
+  } | null;
 }
 
 export interface Database {

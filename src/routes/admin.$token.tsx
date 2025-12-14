@@ -1,10 +1,12 @@
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 import { useState } from "react";
+import { RevelationLogsModal } from "../components/RevelationLogsModal";
 import {
   getGroupByAdminToken,
   getParticipantsByAdminToken,
+  getRevelationLogs,
 } from "../lib/supabase-helpers";
-import type { Participant } from "../types";
+import type { Participant, RevelationLog } from "../types";
 
 export const Route = createFileRoute("/admin/$token")({
   loader: async ({ params }) => {
@@ -20,6 +22,10 @@ function Admin() {
   const { group, participants } = useLoaderData({ from: "/admin/$token" });
   const [copiedAdmin, setCopiedAdmin] = useState(false);
   const [copiedPublic, setCopiedPublic] = useState(false);
+  const [selectedParticipant, setSelectedParticipant] =
+    useState<Participant | null>(null);
+  const [logs, setLogs] = useState<RevelationLog[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
 
   const adminLink = globalThis.location.href;
   const publicLink = `${globalThis.location.origin}${import.meta.env.BASE_URL}p/${group.id}`;
@@ -28,6 +34,25 @@ function Admin() {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleViewLogs = async (participant: Participant) => {
+    setSelectedParticipant(participant);
+    setLoadingLogs(true);
+    try {
+      const participantLogs = await getRevelationLogs(participant.id);
+      setLogs(participantLogs);
+    } catch (err) {
+      console.error("Error loading logs:", err);
+      alert("Erro ao carregar logs de visualização");
+    } finally {
+      setLoadingLogs(false);
+    }
+  };
+
+  const closeModal = () => {
+    setSelectedParticipant(null);
+    setLogs([]);
   };
 
   return (
@@ -233,9 +258,16 @@ function Admin() {
             </div>
             <div className="space-y-2">
               {participants.map((p: Participant, index: number) => (
-                <div
+                <button
+                  type="button"
                   key={p.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-200 group"
+                  onClick={() => p.revealed_at && handleViewLogs(p)}
+                  disabled={!p.revealed_at}
+                  className={`w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl transition-all duration-200 group ${
+                    p.revealed_at
+                      ? "hover:bg-gray-100 cursor-pointer hover:shadow-md"
+                      : "cursor-default"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/30">
@@ -243,44 +275,68 @@ function Admin() {
                     </div>
                     <span className="text-gray-900 font-medium">{p.name}</span>
                   </div>
-                  {p.revealed_at ? (
-                    <div className="flex items-center gap-2 text-xs text-green-600">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      Já visualizou
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      Aguardando revelação
-                    </div>
-                  )}
-                </div>
+                  <div className="flex items-center gap-3">
+                    {p.revealed_at ? (
+                      <>
+                        <div className="flex flex-col items-end gap-1">
+                          <div className="flex items-center gap-2 text-xs text-green-600">
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            Já visualizou
+                          </div>
+                          <span className="text-xs text-gray-500 font-mono">
+                            {p.view_count}{" "}
+                            {p.view_count === 1 ? "vez" : "vezes"}
+                          </span>
+                        </div>
+                        <svg
+                          className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </>
+                    ) : (
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        Aguardando revelação
+                      </div>
+                    )}
+                  </div>
+                </button>
               ))}
             </div>
           </div>
@@ -292,6 +348,14 @@ function Admin() {
           </p>
         </div>
       </div>
+
+      {/* Modal de Logs */}
+      <RevelationLogsModal
+        participant={selectedParticipant}
+        logs={logs}
+        loading={loadingLogs}
+        onClose={closeModal}
+      />
     </div>
   );
 }
