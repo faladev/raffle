@@ -26,11 +26,11 @@ export default function ScratchCard({ name }: ScratchCardProps) {
     canvas.height = rect.height * window.devicePixelRatio;
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 
-    // Draw scratch surface with metallic silver look
+    // Draw scratch surface with golden festive look
     const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
-    gradient.addColorStop(0, "#9ca3af");
-    gradient.addColorStop(0.5, "#d1d5db");
-    gradient.addColorStop(1, "#6b7280");
+    gradient.addColorStop(0, "#f59e0b");
+    gradient.addColorStop(0.5, "#fbbf24");
+    gradient.addColorStop(1, "#d97706");
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, rect.width, rect.height);
 
