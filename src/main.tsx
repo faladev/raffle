@@ -6,6 +6,13 @@ import "./index.css";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 
+// Handle GitHub Pages 404 redirect
+const redirect = sessionStorage.getItem("redirect");
+if (redirect) {
+  sessionStorage.removeItem("redirect");
+  history.replaceState(null, "", redirect);
+}
+
 // Create a new router instance
 const router = createRouter({
   routeTree,
