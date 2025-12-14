@@ -40,7 +40,7 @@ function ParticipantSelection() {
         )
       : [];
 
-  const handleSelect = (participant: { id: string; name: string }) => {
+  const handleSelect = (participant: { id: string; name: string } | null) => {
     if (!participant) return;
     setSelectedParticipant(participant);
   };
