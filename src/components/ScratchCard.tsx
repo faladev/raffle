@@ -26,23 +26,58 @@ export default function ScratchCard({ name }: ScratchCardProps) {
     canvas.height = rect.height * window.devicePixelRatio;
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 
-    // Draw scratch surface
+    // Draw scratch surface with metallic silver look
     const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
-    gradient.addColorStop(0, "#c084fc");
-    gradient.addColorStop(1, "#f472b6");
+    gradient.addColorStop(0, "#9ca3af");
+    gradient.addColorStop(0.5, "#d1d5db");
+    gradient.addColorStop(1, "#6b7280");
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, rect.width, rect.height);
 
-    // Add texture
-    ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-    for (let i = 0; i < 100; i++) {
+    // Add scratchy texture overlay
+    ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+    for (let i = 0; i < 500; i++) {
       const x = Math.random() * rect.width;
       const y = Math.random() * rect.height;
-      ctx.fillRect(x, y, 2, 2);
+      const size = Math.random() * 3;
+      ctx.fillRect(x, y, size, size);
     }
 
-    // Add text
-    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    // Add darker spots for more realistic texture
+    ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+    for (let i = 0; i < 300; i++) {
+      const x = Math.random() * rect.width;
+      const y = Math.random() * rect.height;
+      const size = Math.random() * 2;
+      ctx.fillRect(x, y, size, size);
+    }
+
+    // Add diagonal lines for metallic effect
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+    ctx.lineWidth = 1;
+    for (let i = -rect.height; i < rect.width + rect.height; i += 8) {
+      ctx.beginPath();
+      ctx.moveTo(i, 0);
+      ctx.lineTo(i + rect.height, rect.height);
+      ctx.stroke();
+    }
+
+    // Add subtle shine effect
+    const shineGradient = ctx.createLinearGradient(0, 0, rect.width, 0);
+    shineGradient.addColorStop(0, "rgba(255, 255, 255, 0)");
+    shineGradient.addColorStop(0.3, "rgba(255, 255, 255, 0.2)");
+    shineGradient.addColorStop(0.5, "rgba(255, 255, 255, 0.3)");
+    shineGradient.addColorStop(0.7, "rgba(255, 255, 255, 0.2)");
+    shineGradient.addColorStop(1, "rgba(255, 255, 255, 0)");
+    ctx.fillStyle = shineGradient;
+    ctx.fillRect(0, 0, rect.width, rect.height);
+
+    // Add text with shadow for depth
+    ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
     ctx.font = "bold 20px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -149,7 +184,7 @@ export default function ScratchCard({ name }: ScratchCardProps) {
       />
 
       {/* Reveal button overlay */}
-      {scratchPercentage < 60 && (
+      {scratchPercentage < 5 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30">
           <button
             type="button"
