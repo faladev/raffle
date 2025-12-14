@@ -1,4 +1,10 @@
 import {
+  Combobox,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+} from "@headlessui/react";
+import {
   createFileRoute,
   useLoaderData,
   useNavigate,
@@ -20,12 +26,27 @@ export const Route = createFileRoute("/p/$token")({
 function ParticipantSelection() {
   const { participants } = useLoaderData({ from: "/p/$token" });
   const navigate = useNavigate();
-  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [selectedParticipant, setSelectedParticipant] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSelect = async (participantId: string) => {
-    setLoadingId(participantId);
+  const filteredParticipants =
+    query.length >= 3
+      ? participants.filter((p: { name: string }) =>
+          p.name.toLowerCase().includes(query.toLowerCase()),
+        )
+      : [];
+
+  const handleSelect = async (participant: { id: string; name: string }) => {
+    if (!participant) return;
+
+    setSelectedParticipant(participant);
+    setLoading(true);
     try {
-      const token = await getParticipantToken(participantId);
+      const token = await getParticipantToken(participant.id);
       navigate({
         to: "/reveal/$token",
         params: { token },
@@ -33,8 +54,9 @@ function ParticipantSelection() {
     } catch (err) {
       console.error("Error fetching token:", err);
       alert("Erro ao entrar. Tente novamente.");
+      setSelectedParticipant(null);
     } finally {
-      setLoadingId(null);
+      setLoading(false);
     }
   };
 
@@ -68,76 +90,91 @@ function ParticipantSelection() {
 
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-gray-900">Participantes</h2>
+            <h2 className="text-lg font-bold text-gray-900">
+              Buscar Participante
+            </h2>
             <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold">
               {participants.length}{" "}
               {participants.length === 1 ? "pessoa" : "pessoas"}
             </span>
           </div>
 
-          <div className="grid gap-3">
-            {participants.map(
-              (p: { id: string; name: string }, index: number) => (
-                <button
-                  type="button"
-                  key={p.id}
-                  onClick={() => handleSelect(p.id)}
-                  disabled={loadingId !== null}
-                  className="group w-full text-left px-5 py-4 bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-xl hover:border-purple-300 hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-4"
-                >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white font-bold shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform duration-200">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1">
-                    <span className="font-semibold text-gray-900 group-hover:text-purple-700 transition-colors">
-                      {p.name}
-                    </span>
-                  </div>
-                  {loadingId === p.id ? (
-                    <div className="flex items-center gap-2 text-purple-600">
-                      <svg
-                        className="animate-spin h-5 w-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      <span className="text-sm font-medium">Entrando...</span>
-                    </div>
-                  ) : (
-                    <svg
-                      className="w-5 h-5 text-gray-400 group-hover:text-purple-600 transition-colors"
-                      fill="none"
+          <Combobox
+            value={selectedParticipant}
+            onChange={handleSelect}
+            disabled={loading}
+          >
+            <div className="relative">
+              <ComboboxInput
+                className="w-full px-5 py-4 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 placeholder:text-gray-400"
+                placeholder="Digite seu nome (mínimo 3 letras)..."
+                displayValue={(participant: { name: string } | null) =>
+                  participant?.name || ""
+                }
+                onChange={(event) => setQuery(event.target.value)}
+                autoComplete="off"
+              />
+
+              {loading && (
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-purple-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
                       stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                </div>
+              )}
+
+              {query.length > 0 && query.length < 3 && (
+                <p className="mt-2 text-sm text-gray-500">
+                  Digite pelo menos 3 letras para buscar
+                </p>
+              )}
+
+              {query.length >= 3 && filteredParticipants.length === 0 && (
+                <p className="mt-2 text-sm text-red-600">
+                  Nenhum participante encontrado
+                </p>
+              )}
+
+              <ComboboxOptions className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto">
+                {filteredParticipants.map(
+                  (participant: { id: string; name: string }) => (
+                    <ComboboxOption
+                      key={participant.id}
+                      value={participant}
+                      className="group cursor-pointer select-none px-5 py-3 data-[focus]:bg-purple-50 data-[focus]:text-purple-900 hover:bg-purple-50 transition-colors border-b border-gray-100 last:border-0"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  )}
-                </button>
-              ),
-            )}
-          </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-purple-500/30">
+                          {participant.name.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="font-semibold text-gray-900 group-data-[focus]:text-purple-900">
+                          {participant.name}
+                        </span>
+                      </div>
+                    </ComboboxOption>
+                  ),
+                )}
+              </ComboboxOptions>
+            </div>
+          </Combobox>
 
           <div className="mt-6 p-4 bg-purple-50 border border-purple-100 rounded-xl">
             <div className="flex items-start gap-3">
@@ -158,8 +195,9 @@ function ParticipantSelection() {
                   Dica importante
                 </p>
                 <p className="text-xs text-purple-700">
-                  Clique no seu nome para revelar quem você tirou no sorteio.
-                  Não compartilhe o resultado com ninguém!
+                  Digite seu nome no campo acima (mínimo 3 letras) e selecione
+                  na lista para revelar quem você tirou. Não compartilhe o
+                  resultado com ninguém!
                 </p>
               </div>
             </div>
