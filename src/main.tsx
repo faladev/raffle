@@ -7,10 +7,11 @@ import "./index.css";
 import { routeTree } from "./routeTree.gen";
 
 // Handle GitHub Pages 404 redirect
-const redirect = sessionStorage.getItem("redirect");
+const redirect = sessionStorage.getItem("ghpages_redirect");
 if (redirect) {
-  sessionStorage.removeItem("redirect");
-  history.replaceState(null, "", redirect);
+  sessionStorage.removeItem("ghpages_redirect");
+  const redirectPath = import.meta.env.BASE_URL + redirect.slice(1);
+  history.replaceState(null, "", redirectPath);
 }
 
 // Create a new router instance

@@ -5,17 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Redirecting...</title>
     <script>
-      // Redirect all 404s to index.html with the path preserved
-      // GitHub Pages serves 404.html for any non-existent path
-      const baseUrl = '/raffle/';
-      const currentPath = window.location.pathname;
-      
-      // Only redirect if we're in the /raffle/ path
-      if (currentPath.startsWith(baseUrl)) {
-        // Store the path and redirect to index.html
-        sessionStorage.setItem('redirect', currentPath + window.location.search);
-        window.location.replace(baseUrl);
-      }
+      // SPA redirect solution for GitHub Pages
+      // This handles direct URL access to routes in a SPA
+      (function() {
+        var baseUrl = '/raffle/';
+        var redirect = window.location.pathname;
+        
+        // Check if we're on a 404 page within our app's base path
+        if (redirect.startsWith(baseUrl) && redirect !== baseUrl) {
+          // Store the full URL path including search and hash
+          sessionStorage.setItem('ghpages_redirect', 
+            redirect.slice(baseUrl.length - 1) + window.location.search + window.location.hash
+          );
+          // Redirect to base URL
+          window.location.replace(baseUrl);
+        }
+      })();
     </script>
   </head>
   <body>
