@@ -4,14 +4,18 @@ import { getMyMatch } from "../lib/supabase-helpers";
 
 export const Route = createFileRoute("/reveal/$token")({
   loader: async ({ params }) => {
-    const matchName = await getMyMatch(params.token);
-    return { matchName };
+    const matchData = await getMyMatch(params.token);
+    return { matchData };
   },
   component: Reveal,
 });
 
 function Reveal() {
-  const { matchName } = useLoaderData({ from: "/reveal/$token" });
+  const { matchData } = useLoaderData({ from: "/reveal/$token" });
+
+  // Fallback para o caso do backend não ter sido atualizado ainda
+  const groupName = matchData.group_name || "Amigo Secreto";
+  const matchName = matchData.match_name;
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 relative overflow-hidden">
@@ -70,7 +74,7 @@ function Reveal() {
                   </div>
                   <div>
                     <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                      Amigo Secreto
+                      {groupName}
                     </h1>
                     <p className="text-sm text-gray-600 font-mono uppercase tracking-wider flex items-center gap-2">
                       <svg

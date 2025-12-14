@@ -9,6 +9,7 @@ type CreateRaffleResult = {
 
 type MatchResult = {
   match_name: string;
+  group_name: string;
 };
 
 type ParticipantPublic = {
@@ -115,7 +116,7 @@ function getDeviceInfo() {
   return { browser, os, device };
 }
 
-export async function getMyMatch(publicToken: string): Promise<string> {
+export async function getMyMatch(publicToken: string): Promise<MatchResult> {
   const deviceInfo = getDeviceInfo();
 
   // @ts-expect-error - Supabase types are not properly inferred
@@ -129,7 +130,7 @@ export async function getMyMatch(publicToken: string): Promise<string> {
   if (error) throw error;
   if (!data) throw new Error("Match not found");
 
-  return (data as MatchResult).match_name;
+  return data as MatchResult;
 }
 
 export async function getRevelationLogs(

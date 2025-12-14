@@ -139,20 +139,64 @@ as $$
 $$;
 
 -- RPC: Get My Match (Reveal)
-create or replace function get_my_match(p_public_token uuid)
+create or replace function get_my_match(
+  p_public_token uuid,
+  p_ip_address text default null,
+  p_user_agent text default null,
+  p_device_info jsonb default null
+)
 returns json
 language plpgsql security definer
 as $$
 declare
   v_match_name text;
+  v_group_name text;
+  v_participant_id uuid;
+  v_is_first_view boolean;
 begin
-  select p2.name into v_match_name
+  -- Get participant ID
+  select id into v_participant_id
+  from participants
+  where public_token = p_public_token;
+
+  if v_participant_id is null then
+    return null;
+  end if;
+
+  -- Get match name and group name
+  select p2.name, g.name into v_match_name, v_group_name
   from participants p1
   join participants p2 on p1.target_participant_id = p2.id
+  join groups g on p1.group_id = g.id
   where p1.public_token = p_public_token;
 
   if found then
-    return json_build_object('match_name', v_match_name);
+    -- Check if this is the first view
+    select (revealed_at is null) into v_is_first_view
+    from participants
+    where id = v_participant_id;
+
+    -- Update participant record
+    update participants
+    set 
+      revealed_at = coalesce(revealed_at, now()),
+      view_count = view_count + 1
+    where id = v_participant_id;
+
+    -- Insert log entry (only if revelation_logs table exists)
+    insert into revelation_logs (
+      participant_id,
+      ip_address,
+      user_agent,
+      device_info
+    ) values (
+      v_participant_id,
+      p_ip_address,
+      p_user_agent,
+      p_device_info
+    );
+
+    return json_build_object('match_name', v_match_name, 'group_name', v_group_name);
   else
     return null;
   end if;
