@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting...</title>
+    <script>
+      // SPA redirect solution for GitHub Pages
+      // This handles direct URL access to routes in a SPA
+      (() => {
+        var baseUrl = '/raffle/';
+        var redirect = window.location.pathname;
+        
+        // Check if we're on a 404 page within our app's base path
+        if (redirect.startsWith(baseUrl) && redirect !== baseUrl) {
+          // Store the full URL path including search and hash
+          sessionStorage.setItem('ghpages_redirect', 
+            redirect.slice(baseUrl.length - 1) + window.location.search + window.location.hash
+          );
+          // Redirect to base URL
+          window.location.replace(baseUrl);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting...</p>
+  </body>
+</html>
