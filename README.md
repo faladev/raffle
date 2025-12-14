@@ -118,6 +118,45 @@ bun lint
 bun lint:check
 ```
 
+## 🚀 Deploy no GitHub Pages
+
+Este projeto está configurado para deploy automático no GitHub Pages.
+
+### Configuração Inicial
+
+1. **Ative o GitHub Pages no seu repositório**
+   - Vá em `Settings` > `Pages`
+   - Em `Source`, selecione `GitHub Actions`
+
+2. **Configure as variáveis de ambiente**
+   - Vá em `Settings` > `Secrets and variables` > `Actions`
+   - Adicione os seguintes secrets:
+     - `VITE_SUPABASE_URL`: Sua URL do Supabase
+     - `VITE_SUPABASE_ANON_KEY`: Sua chave anônima do Supabase
+
+3. **Ajuste o base path no vite.config.ts**
+   - Se seu repositório se chama `raffle`, o base já está configurado
+   - Se for diferente, altere a linha `base: "/nome-do-repo/"`
+
+4. **Faça push para a branch main**
+   ```bash
+   git add .
+   git commit -m "Configure GitHub Pages deployment"
+   git push origin main
+   ```
+
+5. **Acesse seu site**
+   - Após o deploy, seu site estará em: `https://faladev.github.io/raffle/`
+
+### Deploy Manual
+
+Você também pode fazer deploy manual:
+
+```bash
+bun run build
+# Faça upload do conteúdo da pasta 'dist' para seu servidor
+```
+
 ## 📁 Estrutura do Projeto
 
 ```
