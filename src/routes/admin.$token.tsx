@@ -22,7 +22,7 @@ function Admin() {
   const [copiedPublic, setCopiedPublic] = useState(false);
 
   const adminLink = globalThis.location.href;
-  const publicLink = `${globalThis.location.origin}/p/${group.id}`; // Using group ID for public access entry point
+  const publicLink = `${globalThis.location.origin}${import.meta.env.BASE_URL}p/${group.id}`;
 
   const copyToClipboard = (text: string, setCopied: (v: boolean) => void) => {
     navigator.clipboard.writeText(text);
