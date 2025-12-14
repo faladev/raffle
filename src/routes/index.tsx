@@ -6,13 +6,15 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const generateUUID = () => crypto.randomUUID();
+
 function Index() {
   const navigate = useNavigate();
   const [groupName, setGroupName] = useState("");
   const [names, setNames] = useState<{ id: string; value: string }[]>([
-    { id: crypto.randomUUID(), value: "" },
-    { id: crypto.randomUUID(), value: "" },
-    { id: crypto.randomUUID(), value: "" },
+    { id: generateUUID(), value: "" },
+    { id: generateUUID(), value: "" },
+    { id: generateUUID(), value: "" },
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +24,7 @@ function Index() {
   };
 
   const addNameField = () => {
-    setNames([...names, { id: crypto.randomUUID(), value: "" }]);
+    setNames([...names, { id: generateUUID(), value: "" }]);
   };
 
   const removeNameField = (id: string) => {
