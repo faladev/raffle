@@ -11,6 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RevealTokenRouteImport } from './routes/reveal.$token'
+import { Route as PTokenRouteImport } from './routes/p.$token'
+import { Route as AdminTokenRouteImport } from './routes/admin.$token'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -22,31 +25,64 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RevealTokenRoute = RevealTokenRouteImport.update({
+  id: '/reveal/$token',
+  path: '/reveal/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PTokenRoute = PTokenRouteImport.update({
+  id: '/p/$token',
+  path: '/p/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminTokenRoute = AdminTokenRouteImport.update({
+  id: '/admin/$token',
+  path: '/admin/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin/$token': typeof AdminTokenRoute
+  '/p/$token': typeof PTokenRoute
+  '/reveal/$token': typeof RevealTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin/$token': typeof AdminTokenRoute
+  '/p/$token': typeof PTokenRoute
+  '/reveal/$token': typeof RevealTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin/$token': typeof AdminTokenRoute
+  '/p/$token': typeof PTokenRoute
+  '/reveal/$token': typeof RevealTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths: '/' | '/about' | '/admin/$token' | '/p/$token' | '/reveal/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/' | '/about'
+  to: '/' | '/about' | '/admin/$token' | '/p/$token' | '/reveal/$token'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/admin/$token'
+    | '/p/$token'
+    | '/reveal/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdminTokenRoute: typeof AdminTokenRoute
+  PTokenRoute: typeof PTokenRoute
+  RevealTokenRoute: typeof RevealTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +101,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reveal/$token': {
+      id: '/reveal/$token'
+      path: '/reveal/$token'
+      fullPath: '/reveal/$token'
+      preLoaderRoute: typeof RevealTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$token': {
+      id: '/p/$token'
+      path: '/p/$token'
+      fullPath: '/p/$token'
+      preLoaderRoute: typeof PTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/$token': {
+      id: '/admin/$token'
+      path: '/admin/$token'
+      fullPath: '/admin/$token'
+      preLoaderRoute: typeof AdminTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdminTokenRoute: AdminTokenRoute,
+  PTokenRoute: PTokenRoute,
+  RevealTokenRoute: RevealTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
