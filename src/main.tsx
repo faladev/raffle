@@ -7,9 +7,9 @@ import "./index.css";
 import { routeTree } from "./routeTree.gen";
 
 // Create a new router instance
-const router = createRouter({ 
+const router = createRouter({
   routeTree,
-  basepath: "/raffle"
+  basepath: "/raffle",
 });
 
 // Register the router instance for type safety
