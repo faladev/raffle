@@ -44,7 +44,7 @@ export interface Database {
         Args: {
           p_admin_token: string;
         };
-        Returns: Group;
+        Returns: Group[];
       };
       get_participants_by_admin_token: {
         Args: {
@@ -73,7 +73,7 @@ export interface Database {
         Args: {
           p_participant_id: string;
         };
-        Returns: string; // returns the public_token
+        Returns: string;
       };
     };
   };

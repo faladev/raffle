@@ -4,19 +4,14 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { useState } from "react";
-import { supabase } from "../lib/supabase";
+import {
+  getParticipantsPublicList,
+  getParticipantToken,
+} from "../lib/supabase-helpers";
 
 export const Route = createFileRoute("/p/$token")({
   loader: async ({ params }) => {
-    const { data: participants, error } = await supabase.rpc(
-      "get_participants_public_list",
-      { p_group_id: params.token },
-    );
-
-    if (error) {
-      throw new Error("Grupo não encontrado ou erro ao carregar participantes");
-    }
-
+    const participants = await getParticipantsPublicList(params.token);
     return { participants };
   },
   component: ParticipantSelection,
@@ -30,21 +25,11 @@ function ParticipantSelection() {
   const handleSelect = async (participantId: string) => {
     setLoadingId(participantId);
     try {
-      const { data: token, error } = await supabase.rpc(
-        "get_participant_token",
-        {
-          p_participant_id: participantId,
-        },
-      );
-
-      if (error) throw error;
-
-      if (token) {
-        navigate({
-          to: "/reveal/$token",
-          params: { token },
-        });
-      }
+      const token = await getParticipantToken(participantId);
+      navigate({
+        to: "/reveal/$token",
+        params: { token },
+      });
     } catch (err) {
       console.error("Error fetching token:", err);
       alert("Erro ao entrar. Tente novamente.");
@@ -63,7 +48,7 @@ function ParticipantSelection() {
       </p>
 
       <div className="grid gap-3">
-        {participants?.map((p) => (
+        {participants.map((p: { id: string; name: string }) => (
           <button
             type="button"
             key={p.id}

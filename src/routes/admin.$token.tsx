@@ -1,25 +1,15 @@
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 import { useState } from "react";
-import { supabase } from "../lib/supabase";
+import {
+  getGroupByAdminToken,
+  getParticipantsByAdminToken,
+} from "../lib/supabase-helpers";
+import type { Participant } from "../types";
 
 export const Route = createFileRoute("/admin/$token")({
   loader: async ({ params }) => {
-    const { data: group, error: groupError } = await supabase
-      .rpc("get_group_by_admin_token", { p_admin_token: params.token })
-      .single();
-
-    if (groupError || !group) {
-      throw new Error("Grupo não encontrado ou token inválido");
-    }
-
-    const { data: participants, error: partError } = await supabase.rpc(
-      "get_participants_by_admin_token",
-      { p_admin_token: params.token },
-    );
-
-    if (partError) {
-      throw new Error("Erro ao carregar participantes");
-    }
+    const group = await getGroupByAdminToken(params.token);
+    const participants = await getParticipantsByAdminToken(params.token);
 
     return { group, participants };
   },
@@ -90,10 +80,10 @@ function Admin() {
 
         <div>
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Participantes ({participants?.length || 0})
+            Participantes ({participants.length})
           </h3>
           <ul className="divide-y divide-gray-200">
-            {participants?.map((p) => (
+            {participants.map((p: Participant) => (
               <li key={p.id} className="py-3 flex justify-between items-center">
                 <span className="text-gray-700">{p.name}</span>
                 <span className="text-xs text-gray-500">
