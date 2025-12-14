@@ -13,6 +13,7 @@ export interface Participant {
   public_token: string;
   target_participant_id: string | null;
   created_at: string;
+  revealed_at: string | null;
 }
 
 export interface Database {
